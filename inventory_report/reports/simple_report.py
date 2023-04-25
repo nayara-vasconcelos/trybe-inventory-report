@@ -12,8 +12,9 @@ def calc_days_between_dates(reference_date: str, another_date: str) -> int:
     return qty_days
 
 
-class SimpleReport:
-    def _get_nearest_expiration_date(self, products) -> str:
+class InventoryInfos:
+    @staticmethod
+    def get_nearest_expiration_date(products) -> str:
         today_date = str(date.today())
         # exclude expired products
         dates_days = [
@@ -34,7 +35,8 @@ class SimpleReport:
         nearest_exp_date = dates_days[date_index][0]
         return nearest_exp_date
 
-    def _get_oldest_date_of_manufacture(self, products) -> str:
+    @staticmethod
+    def get_oldest_date_of_manufacture(products) -> str:
         today_date = str(date.today())
         dates_days = [
             (
@@ -50,7 +52,8 @@ class SimpleReport:
         oldest_date_of_manufacture = dates_days[date_index][0]
         return oldest_date_of_manufacture
 
-    def _get_company_with_the_largest_stock(self, products) -> str:
+    @staticmethod
+    def get_company_products_qty(products):
         company_stock = {}
         for product in products:
             if product["nome_da_empresa"] in company_stock:
@@ -58,21 +61,26 @@ class SimpleReport:
             else:
                 company_stock[product["nome_da_empresa"]] = 1
 
-        qty_products = [
-            company_qty[1] for company_qty in company_stock.items()
-        ]
-        index = qty_products.index(max(qty_products))
-        company_name = list(company_stock.keys())[index]
-        return company_name
+        return list(company_stock.items())
 
     @staticmethod
+    def get_company_with_the_largest_stock(products) -> str:
+        company_stock = InventoryInfos.get_company_products_qty(products)
+
+        qty_products = [company_qty[1] for company_qty in company_stock]
+        index = qty_products.index(max(qty_products))
+        company_name = company_stock[index][0]
+        return company_name
+
+
+class SimpleReport:
+    @staticmethod
     def generate(products) -> str:
-        simple_report = SimpleReport()
-        date_of_manufacture = simple_report._get_oldest_date_of_manufacture(
+        date_of_manufacture = InventoryInfos.get_oldest_date_of_manufacture(
             products
         )
-        expiration_date = simple_report._get_nearest_expiration_date(products)
-        company_name = simple_report._get_company_with_the_largest_stock(
+        expiration_date = InventoryInfos.get_nearest_expiration_date(products)
+        company_name = InventoryInfos.get_company_with_the_largest_stock(
             products
         )
         text = (
@@ -120,13 +128,13 @@ if __name__ == "__main__":
             "instrucoes_de_armazenamento": "instrucao 3",
         },
     ]
-    nearest_exp_date = SimpleReport()._get_nearest_expiration_date(products)
+    nearest_exp_date = InventoryInfos.get_nearest_expiration_date(products)
     # print(nearest_exp_date)
-    oldest_date_of_manufacture = (
-        SimpleReport()._get_oldest_date_of_manufacture(products)
+    oldest_date_of_manufacture = InventoryInfos.get_oldest_date_of_manufacture(
+        products
     )
     # print(oldest_date_of_manufacture)
-    company_name = SimpleReport()._get_company_with_the_largest_stock(products)
+    company_name = InventoryInfos.get_company_with_the_largest_stock(products)
     # print(company_name)
     report = SimpleReport.generate(products=products)
     print(report)
