@@ -14,7 +14,7 @@ class InventoryRefactor(Iterable):
         return InventoryIterator(data=self.data)
 
     def import_data(self, path, report_type):
-        report_options = ["simpes", "completo"]
+        report_options = ["simples", "completo"]
         data = self.importer.import_data(path)
         self.data.extend(data)
 
@@ -24,4 +24,4 @@ class InventoryRefactor(Iterable):
             else CompleteReport.generate(self.data)
         )
 
-        return report
+        return report.strip()
